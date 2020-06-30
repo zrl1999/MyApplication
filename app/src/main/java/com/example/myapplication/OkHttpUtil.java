@@ -1,5 +1,10 @@
 package com.example.myapplication;
 
+import androidx.annotation.NonNull;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -7,13 +12,32 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
+import okhttp3.Cookie;
+import okhttp3.CookieJar;
 import okhttp3.FormBody;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 public class OkHttpUtil {
-    static OkHttpClient okHttpClient = new OkHttpClient();
+    private static Map<String, List<Cookie>> cookieStore = new HashMap<>();
+    private static OkHttpClient okHttpClient = new OkHttpClient.Builder()
+            .cookieJar(new CookieJar()
+            {
+                @Override
+                public void saveFromResponse(@NonNull HttpUrl httpUrl, @NonNull List<Cookie> list)
+                {
+                    cookieStore.put(httpUrl.host(), list);
+                }
+
+                @Override
+                public List<Cookie> loadForRequest(@NonNull HttpUrl httpUrl)
+                {
+                    List<Cookie> cookies = cookieStore.get(httpUrl.host());
+                    return cookies == null ? new ArrayList<>() : cookies;
+                }
+            }).build();
     //创建一个线程池
     static ExecutorService threadpool = Executors.newFixedThreadPool(30);
     public static String getRequest(final String url) throws ExecutionException, InterruptedException {

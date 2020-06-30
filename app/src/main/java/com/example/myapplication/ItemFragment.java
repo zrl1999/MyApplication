@@ -11,8 +11,13 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.myapplication.dummy.DummyContent;
 import com.example.myapplication.dummy.DummyContent.DummyItem;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A fragment representing a list of Items.
@@ -68,7 +73,24 @@ public class ItemFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyItemRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            ArrayList<DummyItem> Items=new ArrayList<DummyItem>();
+            try {
+                String result=OkHttpUtil.getRequest("http://172.18.85.254:8080/auction/api/items/byOwner");
+                JSONArray jsonArray =new JSONArray(result);
+                for (int i=0;i<jsonArray.length();i++){
+                    DummyItem item=new DummyItem(String.valueOf(i+1),
+                            jsonArray.optJSONObject(i).getString("name"),"");
+                    Items.add(item);
+                }
+                System.out.println(result);
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }catch (JSONException e){
+                e.printStackTrace();
+            }
+            recyclerView.setAdapter(new MyItemRecyclerViewAdapter(Items, mListener));
         }
         return view;
     }

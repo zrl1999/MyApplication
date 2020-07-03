@@ -1,6 +1,8 @@
 package com.example.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.fragment.app.FragmentActivity;
 
@@ -23,5 +25,10 @@ public class Viewitem_Activity extends FragmentActivity implements ItemFragment.
     @Override
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
 
+    }
+
+    public void addItem(View view) {
+        Intent intent = new Intent(this,AdditemActivity.class);
+        startActivity(intent);
     }
 }
